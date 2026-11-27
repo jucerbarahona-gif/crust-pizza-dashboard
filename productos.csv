@@ -1,0 +1,45 @@
+﻿ProductoID,Categoria,Producto,Tamaño,CostoUSD,PrecioVentaUSD,MargenBrutoUSD,MargenPorcentaje,Activo
+P001,Pizzas,Pepperoni,M,6.38,14.31,7.93,55.4,Sí
+P002,Pizzas,Pepperoni,L,6.95,15.09,8.140000000000001,53.9,Sí
+P003,Pizzas,Hawaiana,M,6.73,16.48,9.75,59.2,Sí
+P004,Pizzas,Hawaiana,L,6.83,18.47,11.64,63,Sí
+P005,Pizzas,Suprema,M,10.44,24.5,14.06,57.4,Sí
+P006,Pizzas,Suprema,L,9.43,22.04,12.61,57.2,Sí
+P007,Pizzas,Carnes,M,10.72,24.08,13.36,55.5,Sí
+P008,Pizzas,Carnes,L,9.619999999999999,21.94,12.32,56.2,Sí
+P009,Pizzas,Vegetariana,M,7.17,17.48,10.31,59,Sí
+P010,Pizzas,Vegetariana,L,7.62,19.63,12.01,61.2,Sí
+P011,Pizzas,BBQ Chicken,M,9.81,25.95,16.14,62.2,Sí
+P012,Pizzas,BBQ Chicken,L,7.25,17.41,10.16,58.4,Sí
+P013,Pizzas,Mexicana,M,10.61,22.63,12.02,53.1,Sí
+P014,Pizzas,Mexicana,L,8.15,19.21,11.06,57.6,Sí
+P015,Pizzas,4 Quesos,M,8.32,19.85,11.53,58.1,Sí
+P016,Pizzas,4 Quesos,L,5.5,13.56,8.06,59.4,Sí
+P017,Pizzas,Buffalo,M,6.64,14.72,8.08,54.9,Sí
+P018,Pizzas,Buffalo,L,5.52,13.38,7.86,58.7,No
+P019,Pizzas,Mediterránea,M,8.82,19.69,10.87,55.2,Sí
+P020,Pizzas,Mediterránea,L,7.36,16.29,8.93,54.8,Sí
+P021,Entradas,Pan de Ajo,Único,4.52,10.37,5.85,56.4,Sí
+P022,Entradas,Cheese Bread,Único,2.36,5.52,3.16,57.2,Sí
+P023,Entradas,Boneless,Único,2.72,6.16,3.44,55.8,Sí
+P024,Entradas,Alitas 8 pzas,Único,4.29,11.26,6.97,61.9,Sí
+P025,Entradas,Alitas 12 pzas,Único,2.57,6.89,4.32,62.7,Sí
+P026,Entradas,Papas Gajo,Único,3.46,8.35,4.89,58.6,Sí
+P027,Entradas,Mozzarella Sticks,Único,3.37,8.279999999999999,4.91,59.3,Sí
+P028,Entradas,Ensalada César,Único,3.02,8.69,5.67,65.2,Sí
+P029,Bebidas,Refresco,M,0.8100000000000001,3.26,2.45,75.2,No
+P030,Bebidas,Refresco,L,0.99,4.01,3.02,75.3,Sí
+P031,Bebidas,Agua,Único,1.66,6.45,4.79,74.3,Sí
+P032,Bebidas,Té Helado,Único,0.73,2.21,1.48,67,Sí
+P033,Bebidas,Limonada,Único,1.85,7,5.15,73.59999999999999,Sí
+P034,Bebidas,Cerveza,Único,1.49,4.44,2.95,66.40000000000001,Sí
+P035,Bebidas,Café,Único,1.09,2.94,1.85,62.9,Sí
+P036,Bebidas,Jugo,Único,2.2,7.22,5.02,69.5,Sí
+P037,Postres,Brownie,Único,2.42,5.95,3.53,59.3,Sí
+P038,Postres,Cheesecake,Único,4.28,14.54,10.26,70.59999999999999,Sí
+P039,Postres,Canela Bites,Único,4.39,10.16,5.77,56.8,Sí
+P040,Postres,Helado,Único,4.35,11.94,7.59,63.6,Sí
+P041,Postres,Cookie Gigante,Único,2.43,6.72,4.29,63.8,No
+P042,Postres,Pay de Manzana,Único,1.52,3.8,2.28,60,Sí
+P043,Postres,Tiramisú,Único,3.7,10.24,6.54,63.9,Sí
+P044,Postres,Churros,Único,2.83,7.58,4.75,62.7,Sí

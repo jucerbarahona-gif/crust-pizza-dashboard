@@ -1,0 +1,36 @@
+INICIO RÁPIDO — SAN FRANCISCO CRUST PIZZA
+
+YA TIENES EL CÓDIGO. NO HACE FALTA COPIARLO EN UN EDITOR.
+Archivo principal: app.py
+Archivo de cálculos: analytics.py
+Archivo de bibliotecas: requirements.txt
+
+PARA SUBIR LA WEB (desde una computadora):
+1. Descomprime SUBIR_A_GITHUB_Crust_Pizza.zip.
+2. Entra a github.com, crea un repositorio nuevo, preferiblemente PRIVADO.
+3. En el repositorio: Add file > Upload files. Sube los archivos y la carpeta «datos»
+   CONSERVANDO su ubicación. Deben quedar app.py, analytics.py,
+   requirements.txt y datos/ventas.csv, datos/clientes.csv, datos/productos.csv.
+4. Confirma la subida con Commit changes.
+5. Entra a share.streamlit.io y accede con tu cuenta GitHub.
+6. Pulsa Create app. Indica el repositorio, la rama main y el archivo principal app.py.
+7. Pulsa Deploy y abre el enlace que se genere.
+
+CÓMO PROBAR LA CARGA DE DATOS (en la web ya abierta):
+1. A la izquierda expande «Cargar o actualizar bases de datos».
+2. Verás tres opciones: 1. Ventas; 2. Clientes; 3. Productos.
+3. Prueba subiendo los tres Excel originales del ZIP completo, uno en cada campo.
+   El dashboard debe mostrar los mismos totales iniciales.
+4. Prueba cargando solo una base de Ventas con datos nuevos, mismas columnas.
+   Deben recalcularse los seis KPI, todas las gráficas y los filtros.
+5. Abre el dashboard desde otra ventana del navegador sin iniciar sesión para
+   comprobar el acceso público, como exige la universidad.
+
+NOTAS:
+- Los datos cargados desde los botones son temporales de esa sesión.
+- No subas los Excel originales de Clientes a un repositorio público; incluyen nombres.
+- El asistente de IA externa requiere configurar una clave API en Streamlit Secrets.
+- La app todavía necesita prueba de funcionamiento real en Streamlit; el código y la
+  carga de los Excel/CSV superaron pruebas locales del motor de análisis.
+
+INSTRUCCIONES MÁS DETALLADAS EN README.md.
