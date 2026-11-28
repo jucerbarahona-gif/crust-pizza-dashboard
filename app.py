@@ -106,6 +106,15 @@ if fil.empty:
     st.warning('No hay ventas para la combinación de filtros. Amplía el intervalo o retira algún filtro.')
     st.stop()
 
+# Navegación visible: la pestaña de IA no queda oculta al extremo de una fila horizontal.
+SECCIONES = ['📊 Resumen', '🏬 Sucursales', '🍕 Productos', '👥 Clientes',
+             '🧪 Calidad y actualización', '✨ Asistente IA']
+if 'pagina_crust' not in st.session_state:
+    st.session_state['pagina_crust'] = '📊 Resumen'
+if st.button('💬 Abrir asistente IA / hacer una pregunta', type='primary'):
+    st.session_state['pagina_crust'] = '✨ Asistente IA'
+pagina = st.selectbox('Selecciona una sección de la aplicación', SECCIONES,
+                     key='pagina_crust')
 m=metricas(fil)
 c1,c2,c3=st.columns(3)
 c1.metric('Ventas netas',fmt_usd(m['ventas']))
@@ -117,8 +126,7 @@ c5.metric('Clientes con compra',f'{m["clientes"]:,}')
 c6.metric('Transacciones',f'{m["transacciones"]:,}')
 st.caption(f'Periodo filtrado: {fi:%d/%m/%Y} – {ff:%d/%m/%Y} · {m["unidades"]:,} unidades vendidas · {len(fil):,} filas de venta')
 
-resumen,suc_tab,prod_tab,seg_tab,calidad_tab,ia_tab=st.tabs(['📊 Resumen','🏬 Sucursales','🍕 Productos','👥 Clientes','🧪 Calidad y actualización','✨ Asistente IA'])
-with resumen:
+if pagina == '📊 Resumen':
     left,right=st.columns([1.4,1])
     with left:
         st.subheader('Evolución mensual')
@@ -141,7 +149,7 @@ with resumen:
         su=agrupar(fil,'Sucursal').sort_values('Ventas',ascending=True)
         plot(px.bar(su,x='Ventas',y='Sucursal',orientation='h',color_discrete_sequence=[NAVY],labels={'Ventas':'US$','Sucursal':''}),height=420)
     note()
-with suc_tab:
+if pagina == '🏬 Sucursales':
     st.subheader('Comparación de sucursales')
     s=agrupar(fil,'Sucursal').sort_values('Utilidad',ascending=False)
     fig=px.bar(s,x='Sucursal',y='Utilidad',color='Margen %',text_auto='.2s',color_continuous_scale=['#F4D4CF',COLOR],labels={'Utilidad':'Utilidad bruta (US$)'})
@@ -149,7 +157,7 @@ with suc_tab:
     plot(fig,420)
     st.dataframe(s.style.format({'Ventas':'US$ {:,.2f}','Utilidad':'US$ {:,.2f}','Margen %':'{:.2f} %','Ticket':'US$ {:,.2f}'}),use_container_width=True,hide_index=True)
     st.info('Mayor/menor desempeño se compara aquí por utilidad bruta acumulada. Revisar también ventas, margen y transacciones antes de tomar decisiones.')
-with prod_tab:
+if pagina == '🍕 Productos':
     st.subheader('Rentabilidad de productos')
     p=agrupar(fil,'ProductoEtiqueta').sort_values('Utilidad',ascending=False)
     top=p.head(10).sort_values('Utilidad',ascending=True)
@@ -163,7 +171,7 @@ with prod_tab:
         plot(px.bar(low,x='Utilidad',y='ProductoEtiqueta',orientation='h',color_discrete_sequence=[COLOR],labels={'ProductoEtiqueta':'','Utilidad':'Utilidad (US$)'}),480)
     st.dataframe(p.style.format({'Ventas':'US$ {:,.2f}','Utilidad':'US$ {:,.2f}','Margen %':'{:.2f} %','Ticket':'US$ {:,.2f}'}),hide_index=True,use_container_width=True)
     st.caption('El volumen total de utilidad no equivale al margen porcentual. Se utilizan importes históricos, no los precios estáticos del catálogo.')
-with seg_tab:
+if pagina == '👥 Clientes':
     st.subheader('Comparación por segmentos')
     sg=agrupar(fil,'Segmento').sort_values('Ventas',ascending=False)
     l,r=st.columns(2)
@@ -176,7 +184,7 @@ with seg_tab:
     estado=clientes.groupby(['Segmento','ClienteActivo'],dropna=False).size().reset_index(name='Clientes')
     plot(px.bar(estado,x='Segmento',y='Clientes',color='ClienteActivo',barmode='group',color_discrete_sequence=[COLOR,NAVY],labels={'Clientes':'Clientes registrados'}),320)
     st.warning('El estado «ClienteActivo» y los totales acumulados de Clientes no están totalmente reconciliados con el historial de Ventas. Úsalos como señal a validar, no como prueba definitiva de abandono.')
-with calidad_tab:
+if pagina == '🧪 Calidad y actualización':
     st.subheader('Control de calidad de datos')
     items={
         'Filas de ventas procesadas':revision['registros_ventas'],
@@ -197,36 +205,115 @@ with calidad_tab:
     st.markdown('**Limitación:** la actualización es temporal por sesión, no almacena información permanentemente ni modifica el repositorio.')
     csv=(agrupar(fil,'Sucursal')).to_csv(index=False).encode('utf-8-sig')
     st.download_button('Descargar resumen de sucursales (CSV)',csv,'reporte_sucursales.csv','text/csv')
-with ia_tab:
-    st.subheader('Asistente de análisis comercial')
-    st.markdown('El asistente recibe **únicamente métricas agregadas del periodo filtrado**; no se envían nombres ni registros individuales de clientes.')
-    for h in hechos_verificables(fil):st.markdown('• '+h)
-    st.divider()
-    key=os.getenv('OPENAI_API_KEY','')
+if pagina == '✨ Asistente IA':
+    st.subheader('💬 Asistente IA de San Francisco Crust Pizza')
+    st.markdown('**Escribe cualquier pregunta sobre las ventas, clientes, productos, márgenes o sucursales.** '
+                'Las respuestas se basan en las métricas agregadas del dashboard y respetan los filtros activos.')
+
+    key = os.getenv('OPENAI_API_KEY', '').strip()
     if not key:
-        try:key=st.secrets.get('OPENAI_API_KEY','')
-        except Exception:pass
-    if not key:
-        st.warning('IA generativa no configurada. Los hallazgos anteriores son cálculos automáticos verificables, NO recomendaciones generadas por un modelo de IA. Para activar IA, configura OPENAI_API_KEY en Streamlit Secrets o como variable de entorno.')
+        try:
+            key = str(st.secrets.get('OPENAI_API_KEY', '')).strip()
+        except Exception:
+            pass
+    if key:
+        st.success('La clave de IA está configurada. Puedes enviar tu pregunta.')
     else:
-        st.success('Servicio de IA configurado; el análisis se ejecuta cuando pulsas el botón.')
-        pregunta=st.text_area('Consulta para el director comercial',value='Propón cinco decisiones comerciales priorizadas con evidencia numérica. Señala límites del análisis y supuestos.',height=95)
-        if st.button('Generar recomendaciones con IA',type='primary'):
+        st.warning('El formulario está disponible, pero falta configurar OPENAI_API_KEY en Render → Environment. '
+                   'No se harán consultas a la API hasta que exista una clave válida.')
+
+    st.markdown('**Preguntas de ejemplo (elige una o escribe la tuya):**')
+    ejemplos = [
+        ('Sucursales más rentables',
+         '¿Cuáles son las tres sucursales con mayor utilidad bruta y cómo mejorarías sus resultados?'),
+        ('Productos a promocionar',
+         '¿Qué productos conviene promocionar considerando ventas, utilidad y margen?'),
+        ('Comparar segmentos',
+         'Compara los segmentos de clientes y recomienda acciones comerciales con respaldo numérico.'),
+        ('Cinco decisiones',
+         'Propón cinco decisiones comerciales priorizadas y justifica cada una con cifras disponibles.'),
+    ]
+    if 'pregunta_ia' not in st.session_state:
+        st.session_state['pregunta_ia'] = ejemplos[3][1]
+    botones = st.columns(2)
+    for i, (etiqueta, consulta) in enumerate(ejemplos):
+        with botones[i % 2]:
+            if st.button(etiqueta, key=f'ejemplo_ia_{i}', use_container_width=True):
+                st.session_state['pregunta_ia'] = consulta
+
+    with st.form('formulario_asistente_ia'):
+        pregunta = st.text_area('Escribe tu pregunta aquí', key='pregunta_ia', height=120,
+                                help='Puedes formular una pregunta nueva, no solo usar los ejemplos.')
+        consultar = st.form_submit_button('✨ Generar respuesta con IA', type='primary',
+                                          use_container_width=True)
+
+    # Si se actualizan bases o filtros, no conservar una respuesta para un contexto anterior.
+    import hashlib
+    contexto = contexto_para_ia(fil)
+    huella = hashlib.sha256(json.dumps(contexto, sort_keys=True, ensure_ascii=False,
+                                       default=str).encode('utf-8')).hexdigest()
+    if st.session_state.get('huella_ia') != huella:
+        st.session_state['huella_ia'] = huella
+        st.session_state.pop('respuesta_ia', None)
+        st.session_state.pop('ultima_pregunta_ia', None)
+
+    if consultar:
+        if not pregunta.strip():
+            st.warning('Primero escribe una pregunta.')
+        elif not key:
+            st.error('No es posible consultar la IA: falta OPENAI_API_KEY en las variables de Render.')
+        else:
             try:
-                from openai import OpenAI
-                # Enviar solo agregados. Algunas API aplican límites de tamaño.
-                context=contexto_para_ia(fil)
-                sys=('Eres analista comercial. Usa EXCLUSIVAMENTE las cifras JSON adjuntas; no inventes datos. '
-                     'Distingue hallazgos de hipótesis, advierte limitaciones; cada recomendación '
-                     'debe citar un dato del JSON. Responde en español, con claridad y sin datos individuales.')
-                result=OpenAI(api_key=key).chat.completions.create(
-                    model=os.getenv('OPENAI_MODEL','gpt-4o-mini'),
-                    messages=[{'role':'system','content':sys},
-                              {'role':'user','content':'Pregunta: '+pregunta+'\nDatos agregados:\n'+json.dumps(context,ensure_ascii=False,default=str)}],
-                    temperature=.2,max_tokens=1100)
-                st.markdown(result.choices[0].message.content or 'El modelo no devolvió texto.')
-                st.caption('Estas sugerencias deben revisarse críticamente; no equivalen a decisiones ya implementadas.')
+                from openai import OpenAI, AuthenticationError, PermissionDeniedError, RateLimitError
+                instrucciones = (
+                    'Eres un asistente de inteligencia comercial especializado en San Francisco Crust Pizza. '
+                    'Responde preguntas sobre ventas, sucursales, segmentos, productos y rentabilidad. '
+                    'Usa EXCLUSIVAMENTE el JSON de métricas agregadas como evidencia. '
+                    'Si no hay información suficiente, indícalo de forma explícita; no inventes cifras. '
+                    'Distingue hechos comprobados, hipótesis y recomendaciones. '
+                    'Si la pregunta no corresponde al negocio, explica que estás especializado en el dashboard. '
+                    'No afirmes causalidad ni proyecciones sin datos. Responde en español y evita datos personales.'
+                )
+                with st.spinner('Analizando la información comercial...'):
+                    cliente_ia = OpenAI(api_key=key, timeout=40.0, max_retries=1)
+                    resultado = cliente_ia.chat.completions.create(
+                        model=os.getenv('OPENAI_MODEL', 'gpt-4o-mini'),
+                        messages=[
+                            {'role': 'system', 'content': instrucciones},
+                            {'role': 'user', 'content': 'Pregunta del usuario: ' + pregunta.strip() +
+                             '\nMétricas disponibles:\n' + json.dumps(contexto, ensure_ascii=False, default=str)},
+                        ],
+                        temperature=0.2,
+                        max_tokens=1300,
+                    )
+                respuesta = (resultado.choices[0].message.content or '').strip()
+                if respuesta:
+                    st.session_state['respuesta_ia'] = respuesta
+                    st.session_state['ultima_pregunta_ia'] = pregunta.strip()
+                else:
+                    st.error('OpenAI no devolvió texto. Prueba una pregunta diferente.')
+            except AuthenticationError:
+                st.error('OpenAI rechazó la clave API. Comprueba la variable OPENAI_API_KEY en Render.')
+            except PermissionDeniedError:
+                st.error('La clave no tiene permiso para Chat Completions. Revisa Chat completions → Request.')
+            except RateLimitError:
+                st.error('OpenAI indicó un límite de uso o saldo insuficiente. Revisa el crédito de la API.')
             except Exception as exc:
-                st.error(f'No se pudo completar la consulta a la IA: {exc}')
+                st.error('No se pudo completar la consulta de IA. Revisa los registros de Render. '
+                         f'Tipo de error: {type(exc).__name__}.')
+
+    if st.session_state.get('respuesta_ia'):
+        st.markdown('### Respuesta del asistente')
+        st.markdown(st.session_state['respuesta_ia'])
+        texto = ('San Francisco Crust Pizza — Reporte del asistente IA\n\n'
+                 'Pregunta: ' + st.session_state.get('ultima_pregunta_ia', '') + '\n\n'
+                 + st.session_state['respuesta_ia']
+                 + '\n\nNota: recomendaciones generadas por IA, sujetas a revisión humana.')
+        st.download_button('⬇️ Descargar reporte de IA (.txt)', texto,
+                           file_name='reporte_ia_crust_pizza.txt', mime='text/plain')
+        st.caption('Estas recomendaciones deben verificarse con los indicadores; no sustituyen el análisis del equipo.')
+    with st.expander('Ver indicadores comprobables usados como referencia'):
+        for hecho in hechos_verificables(fil):
+            st.markdown('• ' + hecho)
     note()
 st.caption('Proyecto académico · Sistema Inteligente de Apoyo a la Toma de Decisiones · San Francisco Crust Pizza')
